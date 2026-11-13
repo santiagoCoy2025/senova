@@ -14,6 +14,10 @@ from .validators import validar_archivo_evidencia
 User = get_user_model()
 
 
+class BusquedaGlobalForm(forms.Form):
+    q = forms.CharField(label="Buscar en GESICOM", required=False, max_length=100)
+
+
 class EvidenciaForm(forms.Form):
     solicitud = forms.CharField(required=False, widget=forms.HiddenInput)
     nombre = forms.CharField(label="Nombre de la evidencia", max_length=80)

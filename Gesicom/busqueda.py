@@ -13,6 +13,7 @@ from django.views.decorators.http import require_GET
 from notificaciones.models import Notificacion, PlazoReporte
 from notificaciones.services import plazos_para_usuario
 
+from .forms import BusquedaGlobalForm
 from .selectors import _visible_envios
 from .utils import is_admin_or_group
 
@@ -22,7 +23,10 @@ from .utils import is_admin_or_group
 def buscar(request):
     if not request.user.is_authenticated:
         return JsonResponse({"error": "Ingresa de nuevo para buscar.", "login_url": reverse("login")}, status=401)
-    termino = request.GET.get("q", "").strip()[:100]
+    form = BusquedaGlobalForm(request.GET)
+    if not form.is_valid():
+        return JsonResponse({"error": "Escribe una búsqueda válida de hasta 100 caracteres."}, status=400)
+    termino = form.cleaned_data["q"]
     if len(termino) < 2:
         return JsonResponse({"resultados": []})
     # Límite por cuenta, compartido entre procesos mediante Redis; no penaliza una red del centro.
@@ -79,7 +83,12 @@ def buscar(request):
                 }
             )
     plazos = PlazoReporte.objects.filter(activo=True) if admin else plazos_para_usuario(request.user, pendientes=False)
-    for plazo in plazos.filter(Q(titulo__icontains=termino) | Q(proyecto__icontains=termino))[:4]:
+    plazos = (
+        plazos.filter(Q(titulo__icontains=termino) | Q(proyecto__icontains=termino))
+        .only("pk", "titulo", "proyecto")
+        .order_by("fecha_limite", "pk")
+    )
+    for plazo in plazos[:4]:
         resultados.append(
             {
                 "titulo": plazo.titulo,

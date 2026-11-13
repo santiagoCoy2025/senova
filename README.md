@@ -45,6 +45,7 @@ Los datos de MySQL, archivos y credenciales de revisión se conservan en volúme
 - Confirmación de contraseña actual para modificar usuario, correo o contraseña; aviso de los cambios al correo anterior y al nuevo.
 - Centro de seguridad con sesiones por dispositivo, cierre individual o de otras sesiones y caducidad por inactividad.
 - Evidencias mediante archivo de hasta 10 MB o enlace; búsqueda, filtros, estados y paginación.
+- Búsqueda global por rol, con teclado, cancelación, espera limitada y reintento manual; alternativa HTML disponible si falla el controlador.
 - Archivos protegidos: solo el propietario y los roles revisores pueden consultarlos.
 - Reportes con gráficos y descargas CSV que respetan los filtros y neutralizan fórmulas de hojas de cálculo.
 - Publicación de novedades por grupo o para todos los usuarios activos.

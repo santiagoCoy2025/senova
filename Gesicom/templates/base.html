@@ -22,6 +22,7 @@
     {% if user.is_authenticated %}
       <link rel="stylesheet" href="{% static 'css/clock.css' %}">
       <script defer src="{% static 'js/workspace.js' %}"></script>
+      <script defer src="{% static 'js/search.js' %}"></script>
       <script defer src="{% static 'js/navigation.js' %}"></script>
       <script defer src="{% static 'js/notifications.js' %}"></script>
       <script defer src="{% static 'js/clock.js' %}"></script>
@@ -97,18 +98,21 @@
                     id="global-search"
                     aria-haspopup="dialog"
                     aria-controls="command-dialog"
+                    aria-expanded="false"
                     hidden>
               {% icon 'search' %}<span>Buscar o ir a…</span><kbd>Ctrl K</kbd>
             </button>
-            <noscript>
-              <form class="topbar-search"
-                    action="{% url 'evidencias_list' %}"
-                    method="get"
-                    role="search">
-                <label class="sr-only" for="fallback-search">Buscar evidencias</label>
-                <input id="fallback-search" name="q" placeholder="Buscar evidencias…">
-              </form>
-            </noscript>
+            <form class="topbar-search"
+                  action="{% url 'evidencias_list' %}"
+                  method="get"
+                  role="search"
+                  data-search-fallback>
+              <label class="sr-only" for="fallback-search">Buscar evidencias</label>
+              <input id="fallback-search"
+                     name="q"
+                     maxlength="100"
+                     placeholder="Buscar evidencias…">
+            </form>
             <div class="topbar-actions">
               <details class="notifications-menu"
                        data-notifications-summary="{% url 'notificaciones:resumen' %}">
@@ -204,7 +208,8 @@
       <dialog class="command-dialog"
               id="command-dialog"
               aria-labelledby="command-title"
-              data-search-url="{% url 'busqueda_global' %}">
+              data-search-url="{% url 'busqueda_global' %}"
+              data-login-url="{% url 'login' %}">
         <div class="command-heading">
           <h2 id="command-title">¿Qué quieres encontrar?</h2>
           <button class="icon-button"
@@ -223,14 +228,26 @@
                  role="combobox"
                  aria-autocomplete="list"
                  aria-controls="command-results"
-                 aria-expanded="true">
+                 aria-describedby="command-status"
+                 aria-expanded="false">
         </div>
-        <p class="command-status" id="command-status" role="status">Accesos rápidos</p>
+        <div class="command-feedback">
+          <p class="command-status" id="command-status" role="status">Accesos rápidos</p>
+          <button class="button button-secondary button-sm"
+                  type="button"
+                  data-command-retry
+                  hidden>Reintentar búsqueda</button>
+        </div>
         <div id="command-results"
              class="command-results"
              role="listbox"
-             aria-label="Resultados de búsqueda"></div>
-        <div class="command-footer"><span><kbd>↑</kbd> <kbd>↓</kbd> navegar · <kbd>↵</kbd> abrir</span><span><kbd>Esc</kbd> cerrar</span></div>
+             aria-label="Resultados de búsqueda"
+             aria-busy="false"></div>
+        <div class="command-footer">
+          <span><kbd>↑</kbd> <kbd>↓</kbd> navegar · <kbd>↵</kbd> abrir</span>
+          <a href="{% url 'evidencias_list' %}" data-command-evidencias>Buscar en evidencias</a>
+          <span><kbd>Esc</kbd> cerrar</span>
+        </div>
       </dialog>
     {% endif %}
     {% block extra_js %}{% endblock %}

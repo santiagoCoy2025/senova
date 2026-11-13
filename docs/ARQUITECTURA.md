@@ -43,7 +43,7 @@ El centro de operaciones agrega los registros en MySQL y limita las listas recie
 
 Los filtros usan las mismas vistas GET con o sin JavaScript. La mejora interactiva sustituye únicamente los resultados, mantiene los parámetros en la URL y permite volver con el navegador. Los cambios de cuentas siguen siendo formularios POST con CSRF, confirmación de identidad y validación del servidor. Las acciones sensibles no se ejecutan desde la búsqueda.
 
-Los recursos se sirven desde el proyecto: Work Sans, el emblema SENA y Chart.js. Los módulos `workspace.js`, `admin-dashboard.js` y `operations.css` separan las nuevas interacciones de los estilos y comportamientos generales.
+Los recursos se sirven desde el proyecto: Work Sans, el emblema SENA y Chart.js. `search.js` gestiona la búsqueda, `workspace.js` las acciones administrativas y `admin-dashboard.js` el centro de operaciones; los estilos compartidos de estas interacciones permanecen en `operations.css`.
 
 `Gesicom/admin.py` utiliza las mismas reglas de versiones y registro de movimientos. El formulario de corrección reutiliza `formulario.html`; no añade un segundo panel de evidencias. Los estilos de ese flujo están en `evidencias.css`. La tabla de movimientos es de solo lectura en la administración.
 
@@ -55,7 +55,7 @@ Los archivos compartidos se buscan por nombre indexado y se retiran después del
 
 `notifications.js` concentra la actualización de la campana en todos los paneles autenticados; `sena.js` conserva las interacciones generales y la caducidad visible del PIN. La lista inicial se genera en `notificaciones/avisos_recientes.html`, con POST y CSRF, para funcionar también sin JavaScript. Las actualizaciones utilizan el mismo resumen autorizado y crean los elementos con `textContent`; no incorporan HTML de los títulos. La bandeja y el procesador de contexto comparten el conteo únicamente dentro de la misma petición.
 
-`navigation.js` gestiona los filtros, la paginación, el historial y las ediciones pendientes de los paneles interactivos. `workspace.js` mantiene la búsqueda y las acciones administrativas; no hay un segundo controlador de filtros. Las solicitudes GET con `X-Workspace-Fragment: 1` usan `ui/base_fragmento.html` y omiten la cabecera y sus consultas de avisos. Las mismas vistas generan el documento completo sin esa cabecera HTTP. `Vary` identifica ambas representaciones y la respuesta privada conserva `no-store`.
+`navigation.js` gestiona los filtros, la paginación, el historial y las ediciones pendientes de los paneles interactivos. `search.js` y `workspace.js` no duplican ese controlador. Las solicitudes GET con `X-Workspace-Fragment: 1` usan `ui/base_fragmento.html` y omiten la cabecera y sus consultas de avisos. Las mismas vistas generan el documento completo sin esa cabecera HTTP. `Vary` identifica ambas representaciones y la respuesta privada conserva `no-store`.
 
 El estado del historial contiene solo un identificador del documento y un índice, sin datos de formularios. Una navegación cancelada o fallida vuelve a la entrada aplicada sin borrar Adelante. Las nuevas ediciones cancelan las actualizaciones en curso; los eventos de cambio generados al retirar un campo enfocado no se confunden con otra edición del usuario. Los fragmentos se comprueban antes de sustituir regiones y cada consulta tiene un tiempo máximo de espera.
 
