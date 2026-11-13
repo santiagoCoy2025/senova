@@ -3,7 +3,7 @@
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, prefetch_related_objects
 
 from cuentas.correos import invalidar_recuperaciones
 from cuentas.models import RegistroSeguridad
@@ -78,6 +78,7 @@ def cambiar_roles(actor, cambios):
         return 0
     superadministrador = _actor_autorizado(actor)
     usuarios = _cuentas_bloqueadas(cambios)
+    prefetch_related_objects(usuarios, "groups")
     disponibles = {grupo.pk: grupo for grupo in Group.objects.all()}
     for usuario in usuarios:
         _proteger_cuenta(usuario, superadministrador)
@@ -90,7 +91,7 @@ def cambiar_roles(actor, cambios):
     actualizados = 0
     for usuario in usuarios:
         ids = set(cambios[usuario.pk])
-        if set(usuario.groups.values_list("pk", flat=True)) != ids:
+        if {grupo.pk for grupo in usuario.groups.all()} != ids:
             usuario.groups.set(ids)
             registrar_cambio(actor, usuario, "roles")
             actualizados += 1

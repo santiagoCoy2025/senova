@@ -48,12 +48,19 @@
           <h2>
             Directorio de usuarios <span class="table-count">{{ usuarios.paginator.count }}</span>
           </h2>
-          <p>Mostrando {{ usuarios.start_index }}–{{ usuarios.end_index }} de {{ usuarios.paginator.count }} resultados</p>
+          <p>Mostrando {{ usuarios.start_index }}–{{ usuarios.end_index }} de {{ usuarios.paginator.count }} resultados. El CSV incluye todos los resultados de los filtros aplicados.</p>
         </div>
-        <span class="directory-hint">{% icon 'shield' %} Acciones con confirmación</span>
+        <div class="heading-actions">
+          {% if url_exportar %}
+            <a class="button button-secondary button-sm"
+               href="{{ url_exportar }}"
+               download>{% icon 'download' %} Descargar CSV filtrado</a>
+          {% endif %}
+          <span class="directory-hint">{% icon 'shield' %} Acciones con confirmación</span>
+        </div>
       </div>
       <form method="post"
-            action="{% url 'admin_personalizado:gestionar_usuarios' %}"
+            action="{{ regreso_directorio }}"
             id="usersForm"
             data-account-actions>
         {% csrf_token %}
@@ -128,13 +135,13 @@
                   <td>
                     <span class="badge {% if member.is_active %}badge-success{% else %}badge-danger{% endif %}">
                       <span></span>{% if member.is_active %}Activo{% else %}Inactivo{% endif %}</span>
-                    </td>
-                    <td>
-                      <a class="icon-button"
-                         href="{% url 'admin_personalizado:detalle_usuario' member.pk %}"
-                         aria-label="Editar {{ member.username }}">{% icon 'edit' %}</a>
-                    </td>
-                  </tr>
+                  </td>
+                  <td>
+                    <a class="icon-button"
+                       href="{% url 'admin_personalizado:detalle_usuario' member.pk %}"
+                       aria-label="Editar {{ member.username }}">{% icon 'edit' %}</a>
+                  </td>
+                </tr>
               {% empty %}
                 <tr>
                   <td colspan="6">

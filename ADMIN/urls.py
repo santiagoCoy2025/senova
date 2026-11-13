@@ -9,6 +9,7 @@ urlpatterns = [
     path("actividad/", views.actividad, name="actividad"),
     path("actividad.csv", views.actividad_csv, name="actividad_csv"),
     path("usuarios/", views.gestionar_usuarios, name="usuarios"),
+    path("usuarios.csv", views.usuarios_csv, name="usuarios_csv"),
     path("gestionar-usuarios/", views.gestionar_usuarios, name="gestionar_usuarios"),
     path("usuario/<int:usuario_id>/", views.detalle_usuario, name="detalle_usuario"),
     path("usuario/<int:usuario_id>/asignar-grupo/", views.asignar_grupo, name="asignar_grupo"),

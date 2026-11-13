@@ -29,6 +29,7 @@ ETIQUETAS = {
     "admin:perfil": "Actualización de una cuenta",
     "admin:password": "Cambio de contraseña",
     "admin:permisos_grupo": "Cambio de permisos de grupo",
+    "admin:exportar_directorio": "Solicitud de exportación de usuarios",
     "admin:cuenta": "Actualización desde Django admin",
 }
 

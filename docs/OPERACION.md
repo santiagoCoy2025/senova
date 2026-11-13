@@ -220,3 +220,15 @@ El pie de las páginas autenticadas muestra hora de 24 horas, segundos, fecha y 
 Con JavaScript utiliza la hora del dispositivo en `America/Bogota`, incluso si el navegador tiene otra zona horaria. Se actualiza localmente, funciona sin conexión y pausa su temporizador cuando la pestaña está oculta; al volver recupera la hora vigente. Sin JavaScript presenta la referencia del servidor al cargar la página. Las fechas límite y la caducidad de credenciales continúan calculándose en el servidor.
 
 Este bloque no cambia tablas ni añade dependencias. Recopila estáticos y reinicia la aplicación web para cargar la bandeja, el controlador de actualización y el reloj.
+
+## Directorio administrativo y CSV
+
+En **Usuarios**, **Descargar CSV filtrado** incluye todos los resultados de la búsqueda, estado y rol aplicados, aunque ocupen varias páginas. No crea otro panel ni cambia la selección de cuentas. Una descarga conserva las ediciones pendientes de la página; esas ediciones solo se aplican al confirmar el guardado con la contraseña actual.
+
+El archivo contiene identificador, usuario, nombre, correo, roles, estado y fecha de registro en Colombia. Se ordena por identificador ascendente; la pantalla conserva su orden de registro más reciente. Es información personal para uso administrativo autorizado. La auditoría registra la solicitud de exportación, no confirma que el navegador haya terminado de recibirla.
+
+La descarga recorre consultas de hasta 500 cuentas y sus grupos, sin `OFFSET` ni cargar todo el directorio en Django. Al comenzar fija el identificador máximo y excluye altas posteriores con identificadores mayores. Una modificación o eliminación concurrente puede reflejarse en los lotes siguientes; el archivo no es una instantánea transaccional global. El controlador de MySQL puede mantener el búfer de cada consulta acotada.
+
+Guardar roles o activar/desactivar cuentas conserva búsqueda, estado, rol y página, también ante un error de contraseña. Si la última página deja de existir al cambiar el estado, se muestra la última disponible. Los filtros inválidos ocultan resultados y descarga; el CSV responde HTTP 400. Los mismos formularios y enlaces funcionan sin JavaScript.
+
+Este bloque no requiere migraciones ni dependencias nuevas. Recopila estáticos y reinicia la aplicación web para cargar los módulos y plantillas actualizados.
