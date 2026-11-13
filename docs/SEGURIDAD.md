@@ -124,3 +124,11 @@ Los filtros de la bandeja se validan también en las acciones masivas filtradas.
 La lectura interactiva conserva POST y CSRF, y admite JSON únicamente con la cabecera prevista. Sus respuestas no contienen datos de otros avisos ni direcciones de retorno arbitrarias; mantienen el control de caché privado. Los mensajes se insertan como texto. El cliente valida las rutas del mismo origen, bloquea envíos simultáneos y no reintenta automáticamente una escritura cuando se pierde su respuesta. Los formularios nativos conservan la validación y el retorno restringido a la bandeja.
 
 El reloj es informativo: no altera fechas de MySQL, plazos, límites, sesiones ni PIN. Su actualización local no transmite datos, consulta servicios externos o mantiene viva la sesión por inactividad.
+
+## Exportación del directorio
+
+`/administrador/usuarios.csv` requiere el rol actual de administrador o superusuario. La condición de personal y el permiso nativo `view_user` no sustituyen ese rol. GET descarga y registra `admin:exportar_directorio` con actor, ruta e IP; no guarda la búsqueda ni el contenido del archivo. HEAD solo devuelve los metadatos y POST se rechaza.
+
+La consulta y el CSV comparten filtros validados y parametrizados por el ORM. Una entrada inválida no amplía los resultados. La lista y descarga leen campos explícitos de las cuentas, sin cargar sus hashes de contraseña; el CSV tampoco contiene indicadores de privilegios, PIN ni claves de sesión. Reutiliza la neutralización de fórmulas, UTF-8 y las cabeceras sin caché del exportador compartido. El archivo incluye correos y debe permanecer dentro del uso administrativo autorizado.
+
+La dirección de regreso del formulario se construye con una ruta interna fija y una lista de parámetros validados. No acepta destinos externos ni conserva parámetros ajenos a los filtros y la página. Las operaciones mantienen contraseña actual, CSRF, autorización en el servicio, bloqueo de cuentas, auditoría y revocación de sesiones al desactivar. La precarga conjunta de grupos elimina consultas repetidas al comparar roles sin cambios, conservando la actualización transaccional y los límites existentes.

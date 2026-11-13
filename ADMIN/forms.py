@@ -21,6 +21,17 @@ class FiltrosUsuariosForm(forms.Form):
         super().__init__(data)
         self.fields["rol"].choices = [("", "Todos los roles"), *[(str(g.pk), g.name) for g in grupos]]
 
+    def consulta_url(self, *, pagina=1):
+        if not self.is_valid():
+            return ""
+        params = QueryDict(mutable=True)
+        for nombre in self.fields:
+            if valor := self.cleaned_data.get(nombre):
+                params[nombre] = valor
+        if pagina > 1:
+            params["page"] = pagina
+        return "?" + params.urlencode() if params else ""
+
 
 class FiltrosAuditoriaForm(forms.Form):
     q = forms.CharField(

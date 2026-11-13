@@ -56,6 +56,7 @@ Los datos de MySQL, archivos y credenciales de revisión se conservan en volúme
 - Reloj con hora y fecha de Colombia en el pie de la aplicación, adaptable a móvil.
 - Cola de correo con lotes, bloqueo entre trabajadores y reintentos con espera.
 - Administración de usuarios, roles y permisos; edición de datos, estado, roles y contraseña.
+- Directorio con CSV de todos los resultados filtrados y conservación de filtros y página al guardar.
 - Historial administrativo con búsqueda, fechas de Colombia, detalles y CSV filtrado de todos los resultados.
 - Consulta administrativa de permisos mínimos, TLS e integridad de MySQL, sin modificar la base.
 

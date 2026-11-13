@@ -16,13 +16,16 @@ from django.views.decorators.http import require_safe
 
 from cuentas.correos import encolar_aviso_cambio, invalidar_recuperaciones
 from cuentas.forms import ConfirmarPasswordForm, EditarUsuarioForm
+from cuentas.models import RegistroSeguridad
 from cuentas.sesiones import cerrar_sesiones
 from Gesicom.exportaciones import respuesta_csv
 from Gesicom.interfaz import render_panel
 from Gesicom.utils import require_group
 from SENNOVA.database_security import inspeccionar_conexion
+from SENNOVA.middleware import client_ip
 
 from .auditoria import filas_auditoria, presentar_registro, registros_filtrados
+from .directorio import filas_directorio, pagina_de_regreso, usuarios_de_pagina, usuarios_filtrados
 from .forms import FiltrosAuditoriaForm, FiltrosUsuariosForm
 from .selectors import centro_operaciones
 from .services import cambiar_estados, cambiar_roles, registrar_cambio, validar_destino
@@ -160,11 +163,16 @@ def permisos(request):
 @user_passes_test(_requerir_administrador, login_url="access_denied")
 @sensitive_post_parameters()
 def gestionar_usuarios(request):
+    grupos = list(Group.objects.order_by("name"))
+    filtros = FiltrosUsuariosForm(request.GET, grupos=grupos)
+    regreso = reverse("admin_personalizado:gestionar_usuarios") + filtros.consulta_url(
+        pagina=pagina_de_regreso(request.GET.get("page"))
+    )
     if request.method == "POST":
         form = ConfirmarPasswordForm(request.POST, usuario=request.user)
         if not form.is_valid():
             messages.error(request, "Confirma tu contraseña actual para administrar las cuentas.")
-            return redirect("admin_personalizado:gestionar_usuarios")
+            return redirect(regreso)
         try:
             accion = request.POST.get("accion", "roles")
             if accion in {"activar", "desactivar"}:
@@ -185,25 +193,11 @@ def gestionar_usuarios(request):
                 raise ValidationError("Selecciona una acción válida.")
         except ValidationError as error:
             messages.error(request, " ".join(error.messages))
-        return redirect("admin_personalizado:gestionar_usuarios")
+        return redirect(regreso)
     busqueda = request.GET.get("q", "").strip()[:100]
     estado = request.GET.get("estado", "")
     rol = request.GET.get("rol", "")
-    grupos = list(Group.objects.order_by("name"))
-    filtros = FiltrosUsuariosForm(request.GET, grupos=grupos)
-    valido = filtros.is_valid()
-    lista = User.objects.prefetch_related("groups").order_by("-date_joined", "-pk") if valido else User.objects.none()
-    if valido and busqueda:
-        lista = lista.filter(
-            Q(username__icontains=busqueda)
-            | Q(email__icontains=busqueda)
-            | Q(first_name__icontains=busqueda)
-            | Q(last_name__icontains=busqueda)
-        )
-    if valido and estado:
-        lista = lista.filter(is_active=estado == "activo")
-    if valido and rol:
-        lista = lista.filter(groups__pk=filtros.cleaned_data["rol"])
+    lista = usuarios_de_pagina(usuarios_filtrados(filtros))
     return render_panel(
         request,
         "admin_personalizado/gestionar_usuarios_modern.html",
@@ -214,9 +208,41 @@ def gestionar_usuarios(request):
             "rol": rol,
             "grupos_disponibles": grupos,
             "filtros_form": filtros,
+            "regreso_directorio": regreso,
+            "url_exportar": reverse("admin_personalizado:usuarios_csv") + filtros.consulta_url()
+            if filtros.is_valid()
+            else None,
             "mensaje_filtros": "No se muestran cuentas hasta corregir los filtros.",
         },
     )
+
+
+@require_group("administrador")
+@require_safe
+@never_cache
+def usuarios_csv(request):
+    filtros = FiltrosUsuariosForm(request.GET, grupos=list(Group.objects.order_by("name")))
+    if not filtros.is_valid():
+        return render(
+            request,
+            "error_filtros.html",
+            {
+                "filtros_form": filtros,
+                "volver": reverse("admin_personalizado:gestionar_usuarios"),
+                "regreso_error": reverse("admin_personalizado:gestionar_usuarios"),
+                "regreso_texto": "Volver al directorio",
+                "seccion_error": "GESICOM / ADMINISTRACIÓN / USUARIOS",
+            },
+            status=400,
+        )
+    if request.method == "GET":
+        RegistroSeguridad.objects.create(
+            actor=request.user,
+            accion="admin:exportar_directorio",
+            ruta=request.path,
+            direccion_ip=client_ip(request),
+        )
+    return respuesta_csv(filas_directorio(usuarios_filtrados(filtros)), "usuarios-gesicom.csv")
 
 
 @login_required
