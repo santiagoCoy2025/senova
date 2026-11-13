@@ -52,6 +52,18 @@
   backdrop-filter: blur(4px);
 }
 
+.command-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.command-heading,
+.command-input-wrap,
+.command-feedback,
+.command-footer {
+  flex-shrink: 0;
+}
+
 .command-heading {
   display: flex;
   align-items: center;
@@ -96,13 +108,24 @@
   border-bottom-color: #39a900;
 }
 
-.command-status {
-  color: var(--muted);
-  font-size: 11px;
+.command-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   padding: 13px 22px 5px;
 }
 
+.command-status {
+  color: var(--muted);
+  font-size: 11px;
+  flex: 1 1 200px;
+  margin: 0;
+}
+
 .command-results {
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 6px 10px 14px;
   max-height: min(360px, 47dvh);
   overflow-y: auto;
@@ -162,6 +185,8 @@
   border-top: 1px solid var(--line);
   background: #f8fafb;
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 12px 22px;

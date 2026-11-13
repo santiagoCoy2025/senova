@@ -232,3 +232,15 @@ La descarga recorre consultas de hasta 500 cuentas y sus grupos, sin `OFFSET` ni
 Guardar roles o activar/desactivar cuentas conserva búsqueda, estado, rol y página, también ante un error de contraseña. Si la última página deja de existir al cambiar el estado, se muestra la última disponible. Los filtros inválidos ocultan resultados y descarga; el CSV responde HTTP 400. Los mismos formularios y enlaces funcionan sin JavaScript.
 
 Este bloque no requiere migraciones ni dependencias nuevas. Recopila estáticos y reinicia la aplicación web para cargar los módulos y plantillas actualizados.
+
+## Búsqueda global y conexión
+
+El control de la cabecera y `Ctrl K`/`Cmd K` abren el buscador único. Las flechas recorren los resultados, Enter abre el elegido y Escape cierra y devuelve el foco. Los accesos rápidos se filtran localmente; a partir de dos caracteres se consultan los registros autorizados. La escritura espera una pausa breve y la composición de texto termina antes de consultar.
+
+Cada consulta tiene una espera máxima de diez segundos, incluida la lectura de la respuesta. Cambiar el texto, cerrar el diálogo u ocultar la pestaña cancela la consulta pendiente. Una respuesta antigua no sustituye la nueva. Los errores ofrecen **Reintentar búsqueda** y mantienen los accesos rápidos de la consulta. Recuperar la conexión o volver a la pestaña permite reintentar, sin iniciar otra petición automáticamente.
+
+Al superar el límite por cuenta, el diálogo respeta `Retry-After` en segundos o fecha HTTP y muestra el tiempo de espera inicial. No consulta otro término durante esa espera, incluso después de cerrar y reabrir el diálogo en la misma página. Al terminar se habilita el botón, sin enviar una consulta nueva. Recargar la página no elimina el límite aplicado en el servidor.
+
+**Buscar en evidencias** conserva el texto en la consulta de ese módulo, con su propio alcance y filtros. Si JavaScript está desactivado, el navegador no admite el diálogo o el controlador no carga, la cabecera mantiene un formulario HTML de búsqueda de evidencias. Los registros de usuarios solo aparecen para administración y los avisos siempre pertenecen a la cuenta conectada.
+
+Este bloque no cambia tablas ni dependencias. Recopila estáticos y reinicia la aplicación web para cargar `search.js` y las plantillas. `workspace.js` conserva las operaciones administrativas y sus confirmaciones.

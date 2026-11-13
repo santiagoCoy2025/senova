@@ -40,6 +40,7 @@ docs/                           arquitectura, desarrollo, operación y verificac
 | Formularios de recuperación HTML/JSON | `cuentas/presentacion.py`, `cuentas/views.py` y parciales de `cuentas/templates/cuentas/` |
 | Interacción y estados de recuperación | `Gesicom/static/js/recovery.js` y `css/recovery.css` |
 | Comunidad, permisos y actividad | `ADMIN/urls.py` y sus módulos |
+| Búsqueda global y accesos rápidos | `Gesicom/busqueda.py`, `BusquedaGlobalForm`, `static/js/search.js` y el diálogo en `base.html` |
 | Consulta de usuarios y CSV por lotes | `ADMIN/directorio.py`, con `FiltrosUsuariosForm` y operaciones en `ADMIN/services.py` |
 | Plazos, novedades, bandeja y calendario | `notificaciones/urls.py` y sus módulos |
 | Validación de filtros | Formularios de la aplicación, compartidos con la descarga |
