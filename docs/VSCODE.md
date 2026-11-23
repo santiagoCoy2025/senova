@@ -2,6 +2,8 @@
 
 El inicio local funciona en **Windows, macOS y Linux** con Python **3.12 a 3.15 de 64 bits**. No requiere Docker, MySQL, Redis, GCC, `pkg-config` ni bibliotecas de desarrollo de Linux. Usa SQLite y un servidor Waitress compatible con los tres sistemas. MySQL y Redis siguen disponibles en el perfil de despliegue.
 
+En macOS, la instalación desde ruedas de este perfil requiere **Apple Silicon (ARM64)**: `cryptography` 50 no publica ruedas para Intel. En Mac Intel utiliza el perfil Docker o una instalación explícita de la biblioteca actual compilada para tu equipo; el inicio sencillo no intenta compilarla ni instala una versión anterior vulnerable.
+
 Abre en VS Code la carpeta que contiene `manage.py`, `scripts/` y `requirements.txt`. Las rutas con espacios, incluidas las carpetas de OneDrive, se pasan como argumentos independientes.
 
 ## Instalar y ejecutar en Windows

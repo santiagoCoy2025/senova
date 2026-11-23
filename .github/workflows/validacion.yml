@@ -93,8 +93,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macOS x64 conserva las pruebas y evita la cola del grupo arm64.
-        os: [ubuntu-latest, windows-latest, macos-15-intel]
+        # cryptography 50 publica ruedas macOS para Apple Silicon.
+        os: [ubuntu-latest, windows-latest, macos-26]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     defaults:
