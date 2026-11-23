@@ -15,5 +15,7 @@
     "**/venv/**": true,
     "**/staticfiles/**": true,
     "**/.local/**": true
-  }
+  },
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "chatgpt.runCodexInWindowsSubsystemForLinux": false
 }

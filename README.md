@@ -4,7 +4,7 @@ Gestión de evidencias, reportes, novedades y plazos con Django 6.1, MySQL 8.4 y
 
 ## Ejecutar en Visual Studio Code
 
-Abre la carpeta que contiene `manage.py`. El inicio local funciona con Python 3.12 a 3.15 de 64 bits, sin Docker, MySQL, Redis ni herramientas de compilación.
+Abre la carpeta que contiene `manage.py`. El inicio local funciona con Python 3.12 a 3.15 de 64 bits, sin WSL, Docker, MySQL, Redis ni herramientas de compilación.
 
 En macOS, este inicio desde paquetes precompilados requiere Apple Silicon. La [guía de VS Code](docs/VSCODE.md) describe la opción para Mac Intel.
 

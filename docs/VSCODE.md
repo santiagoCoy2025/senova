@@ -1,6 +1,6 @@
 # Ejecutar GESICOM en Visual Studio Code
 
-El inicio local funciona en **Windows, macOS y Linux** con Python **3.12 a 3.15 de 64 bits**. No requiere Docker, MySQL, Redis, GCC, `pkg-config` ni bibliotecas de desarrollo de Linux. Usa SQLite y un servidor Waitress compatible con los tres sistemas. MySQL y Redis siguen disponibles en el perfil de despliegue.
+El inicio local funciona en **Windows, macOS y Linux** con Python **3.12 a 3.15 de 64 bits**. No requiere WSL, Docker, MySQL, Redis, GCC, `pkg-config` ni bibliotecas de desarrollo de Linux. Usa SQLite y un servidor Waitress compatible con los tres sistemas. MySQL y Redis siguen disponibles en el perfil de despliegue.
 
 En macOS, la instalación desde ruedas de este perfil requiere **Apple Silicon (ARM64)**: `cryptography` 50 no publica ruedas para Intel. En Mac Intel utiliza el perfil Docker o una instalación explícita de la biblioteca actual compilada para tu equipo; el inicio sencillo no intenta compilarla ni instala una versión anterior vulnerable.
 
@@ -138,3 +138,25 @@ python iniciar.py --puerto 8001
 ```
 
 El puerto se comprueba antes de instalar o reparar el entorno. El lanzador mantiene el error visible si falla; no confirma que el servidor esté listo cuando termina con un error. Las herramientas de depuración, Ruff y auditoría siguen disponibles en `requirements-dev.txt`, pero no se necesitan para ejecutar la página.
+
+## Si VS Code solicita WSL
+
+El proyecto configura PowerShell y Codex en modo Windows mediante estas preferencias de `.vscode/settings.json`:
+
+```json
+{
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "chatgpt.runCodexInWindowsSubsystemForLinux": false
+}
+```
+
+Para aplicarlas en tu equipo:
+
+1. Actualiza la extensión oficial Codex de OpenAI desde Extensiones de VS Code.
+2. Si la esquina inferior izquierda muestra una conexión WSL, ejecuta **Remote: Close Remote Connection** y abre la carpeta del proyecto desde su ruta de Windows, por ejemplo `C:\Users\...`.
+3. En Ajustes busca **Run Codex in Windows Subsystem For Linux** y comprueba que esté desactivado.
+4. Ejecuta **Developer: Reload Window**, abre una terminal PowerShell y ejecuta `python iniciar.py`.
+
+La preferencia de Codex está documentada en la [referencia oficial del editor](https://developers.openai.com/codex/ide/settings/). Codex también dispone de un [entorno aislado nativo de Windows](https://developers.openai.com/codex/windows/); esta configuración conserva sus límites de seguridad. No hace falta cambiar el aislamiento a acceso total para iniciar GESICOM.
+
+Las preferencias del repositorio se aplican al abrir esta carpeta; no modifican directamente las preferencias personales ni la instalación de VS Code de otro equipo.
