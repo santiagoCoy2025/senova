@@ -10,6 +10,7 @@ import subprocess
 import sys
 import venv
 from pathlib import Path
+from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -19,11 +20,8 @@ from SENNOVA.desarrollo import crear_configuracion_local, entorno_local, python_
 PYTHON_SOPORTADOS = {(3, 12), (3, 13), (3, 14), (3, 15)}
 
 
-def crear_entorno(raiz):
+def verificar_entorno(raiz):
     carpeta = raiz / ".venv"
-    if not carpeta.exists():
-        print(f"Creando .venv con Python {sys.version_info.major}.{sys.version_info.minor}...", flush=True)
-        venv.EnvBuilder(with_pip=True).create(carpeta)
     python = python_del_entorno(raiz)
     if not (carpeta / "pyvenv.cfg").is_file() or not python.is_file():
         raise RuntimeError(".venv existe pero está incompleto. Renómbralo y vuelve a ejecutar este comando.")
@@ -55,6 +53,23 @@ def crear_entorno(raiz):
             "(3.12 a 3.15). Si corresponde a otra versión, renómbralo antes de volver a preparar el proyecto."
         )
     return python
+
+
+def crear_entorno(raiz, *, reparar=False):
+    carpeta = raiz / ".venv"
+    if carpeta.exists() or carpeta.is_symlink():
+        try:
+            return verificar_entorno(raiz)
+        except RuntimeError:
+            if not reparar:
+                raise
+        destino = raiz / ".local" / "entornos" / f"venv-{uuid4().hex}"
+        destino.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        carpeta.rename(destino)
+        print(f"Entorno anterior conservado en {destino}", flush=True)
+    print(f"Creando .venv con Python {sys.version_info.major}.{sys.version_info.minor}...", flush=True)
+    venv.EnvBuilder(with_pip=True).create(carpeta)
+    return verificar_entorno(raiz)
 
 
 def ejecutar(argumentos, raiz, *, entorno=None):
@@ -92,12 +107,12 @@ def instalar_extensiones(raiz):
         print("No se pudieron descargar las extensiones. Instálalas desde las recomendaciones de VS Code.")
 
 
-def preparar(raiz, *, inicio_rapido=False, mysql=False, extensiones=False):
-    python = crear_entorno(raiz)
+def preparar(raiz, *, inicio_rapido=False, mysql=False, extensiones=False, solo_ejecucion=False, reparar_entorno=False):
+    python = crear_entorno(raiz, reparar=reparar_entorno)
     privados = raiz / ".local"
     privados.mkdir(exist_ok=True, mode=0o700)
-    print("Instalando paquetes precompilados de ejecución, pruebas y depuración...", flush=True)
-    requisitos = ["-r", raiz / "requirements-dev.txt"]
+    print("Instalando paquetes precompilados para GESICOM...", flush=True)
+    requisitos = ["-r", raiz / ("requirements.txt" if solo_ejecucion else "requirements-dev.txt")]
     if mysql:
         requisitos.extend(["-r", raiz / "requirements-mysql.txt"])
     ejecutar(
@@ -131,7 +146,10 @@ def preparar(raiz, *, inicio_rapido=False, mysql=False, extensiones=False):
         print("La configuración .env y los datos de otros perfiles se conservan.")
     if extensiones:
         instalar_extensiones(raiz)
-    print(".venv preparado. En VS Code: Python: Select Interpreter, elige .venv y después F5.")
+    if solo_ejecucion:
+        print(".venv preparado con las bibliotecas de ejecución.")
+    else:
+        print(".venv preparado. En VS Code: Python: Select Interpreter, elige .venv y después F5.")
     print("Selecciona GESICOM: aplicación y correos locales; los PIN aparecen en la consola del trabajador.")
 
 
@@ -151,7 +169,14 @@ def main(argv=None):
     parser.add_argument(
         "--ejecutar", action="store_true", help="Prepara el perfil local e inicia la aplicación y el trabajador."
     )
+    parser.add_argument("--solo-ejecucion", action="store_true", help="Instala solo las dependencias de la aplicación.")
+    parser.add_argument(
+        "--reparar-entorno", action="store_true", help="Conserva y reemplaza un .venv incompatible o incompleto."
+    )
+    parser.add_argument("--puerto", type=int, default=8000, help="Puerto del servidor local.")
     args = parser.parse_args(argv)
+    if not 1024 <= args.puerto <= 65535:
+        parser.error("El puerto debe estar entre 1024 y 65535.")
     if tuple(sys.version_info[:2]) not in PYTHON_SOPORTADOS:
         print(
             "Usa Python 3.12 a 3.15 de 64 bits; por ejemplo: py -3.15 scripts/configurar_entorno.py en Windows.",
@@ -160,10 +185,17 @@ def main(argv=None):
         return 2
     try:
         preparar(
-            ROOT, inicio_rapido=args.inicio_rapido or args.ejecutar, mysql=args.mysql, extensiones=args.extensiones
+            ROOT,
+            inicio_rapido=args.inicio_rapido or args.ejecutar,
+            mysql=args.mysql,
+            extensiones=args.extensiones,
+            solo_ejecucion=args.solo_ejecucion,
+            reparar_entorno=args.reparar_entorno,
         )
         if args.ejecutar:
-            ejecutar([python_del_entorno(ROOT), ROOT / "scripts" / "ejecutar_local.py"], ROOT)
+            ejecutar(
+                [python_del_entorno(ROOT), ROOT / "scripts" / "ejecutar_local.py", "--puerto", str(args.puerto)], ROOT
+            )
     except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
         print(f"No se pudo completar la preparación: {error}", file=sys.stderr)
         print("Consulta docs/VSCODE.md. El inicio local no requiere Docker, MySQL ni compiladores.", file=sys.stderr)

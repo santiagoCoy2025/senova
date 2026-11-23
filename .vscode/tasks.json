@@ -15,15 +15,16 @@
       "args": [
         "scripts/configurar_entorno.py",
         "--inicio-rapido",
-        "--extensiones"
+        "--extensiones",
+        "--reparar-entorno"
       ],
       "windows": {
-        "command": "py",
+        "command": "python",
         "args": [
-          "-3.15",
           "scripts/configurar_entorno.py",
           "--inicio-rapido",
-          "--extensiones"
+          "--extensiones",
+          "--reparar-entorno"
         ]
       },
       "problemMatcher": []

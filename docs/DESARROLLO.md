@@ -2,7 +2,7 @@
 
 La configuración activa está en `SENNOVA/`. Cada aplicación conserva sus modelos, migraciones, rutas, plantillas y pruebas. Los nombres históricos de las aplicaciones mantienen la identidad de las tablas y permisos.
 
-Para trabajar en el editor, utiliza la [guía de VS Code](VSCODE.md). `scripts/configurar_entorno.py` crea `.venv` con el Python 3.12 a 3.15 que lo ejecuta e instala `requirements-dev.txt`; `--inicio-rapido` prepara un perfil SQLite aislado en `.local/desarrollo/`, incluso si ya existe un `.env` de MySQL. El inicio local no requiere Docker ni compiladores; `--extensiones --ejecutar` instala las recomendaciones de VS Code cuando su CLI está disponible e inicia web y trabajador. Los cuatro archivos compartidos de `.vscode/` definen intérprete, extensiones, tareas y depuración con `debugpy`. El entorno virtual y las credenciales se generan en cada equipo.
+El inicio sencillo es `python iniciar.py` o `INICIAR_WINDOWS.cmd` en Windows; instala solo ejecución, prepara el perfil SQLite y conserva un entorno incompatible antes de recrearlo. Para trabajar en el editor, utiliza la [guía de VS Code](VSCODE.md). `scripts/configurar_entorno.py` crea `.venv` con el Python 3.12 a 3.15 que lo ejecuta e instala `requirements-dev.txt`; `--inicio-rapido` prepara un perfil SQLite aislado en `.local/desarrollo/`, incluso si ya existe un `.env` de MySQL. El inicio local no requiere Docker ni compiladores; `--extensiones --ejecutar` instala las recomendaciones de VS Code cuando su CLI está disponible e inicia web y trabajador. Los cuatro archivos compartidos de `.vscode/` definen intérprete, extensiones, tareas y depuración con `debugpy`. El entorno virtual y las credenciales se generan en cada equipo.
 
 ```text
 SENNOVA/
