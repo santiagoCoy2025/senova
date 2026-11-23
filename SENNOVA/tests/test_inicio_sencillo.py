@@ -51,6 +51,20 @@ class InicioSencilloTests(SimpleTestCase):
     def test_un_fallo_de_preparacion_se_transmite_al_lanzador(self, preparar):
         self.assertEqual(iniciar.main(["--preparar"]), 7)
 
+    @patch("iniciar.configurar_entorno.main", return_value=0)
+    def test_un_puerto_cerrado_recientemente_no_impide_reiniciar(self, preparar):
+        with socket.socket() as servidor:
+            servidor.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            servidor.bind(("127.0.0.1", 0))
+            servidor.listen(1)
+            puerto = servidor.getsockname()[1]
+            with socket.create_connection(("127.0.0.1", puerto), timeout=1) as cliente:
+                conexion, _ = servidor.accept()
+                conexion.close()
+                self.assertEqual(cliente.recv(1), b"")
+        self.assertEqual(iniciar.main(["--puerto", str(puerto)]), 0)
+        self.assertIn("--ejecutar", preparar.call_args.args[0])
+
     @patch.dict(os.environ, {"DJANGO_SETTINGS_MODULE": ""})
     def test_runserver_de_una_copia_preparada_elige_el_perfil_aislado(self):
         archivo_perfil(self.raiz).parent.mkdir(parents=True)

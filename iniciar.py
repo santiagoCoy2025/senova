@@ -21,8 +21,11 @@ def main(argv=None):
     if not args.preparar:
         try:
             with socket.socket() as reserva:
-                reserva.bind(("127.0.0.1", args.puerto))
+                reserva.settimeout(1)
+                ocupado = reserva.connect_ex(("127.0.0.1", args.puerto)) == 0
         except OSError:
+            ocupado = True
+        if ocupado:
             print(
                 f"No se puede usar el puerto {args.puerto}. Cierra la otra instancia o usa: python iniciar.py --puerto 8001",
                 file=sys.stderr,
