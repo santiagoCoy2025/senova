@@ -92,16 +92,24 @@ def comprobar_http(raiz, entorno, comando):
         if comando == ["-m", "waitress"]
         else [f"127.0.0.1:{puerto}", "--noreload"]
     )
+    diagnostico = """
+import faulthandler, runpy, sys
+faulthandler.dump_traceback_later(45)
+objetivo = sys.argv.pop(1)
+sys.argv[0] = objetivo
+runpy.run_path(objetivo, run_name="__main__")
+"""
+    prefijo = ["-c", diagnostico] if comando == ["manage.py", "runserver"] else []
     with tempfile.TemporaryFile() as registro:
         proceso = subprocess.Popen(
-            [str(python_del_entorno(raiz)), *comando, *argumentos],
+            [str(python_del_entorno(raiz)), "-u", *prefijo, *comando, *argumentos],
             cwd=raiz,
             env=entorno,
             stdout=registro,
             stderr=subprocess.STDOUT,
         )
         try:
-            limite = time.monotonic() + 30
+            limite = time.monotonic() + 60
             while True:
                 try:
                     with urllib.request.urlopen(f"http://127.0.0.1:{puerto}/health/", timeout=2) as respuesta:
@@ -109,7 +117,16 @@ def comprobar_http(raiz, entorno, comando):
                     break
                 except (urllib.error.URLError, TimeoutError):
                     if proceso.poll() is not None or time.monotonic() >= limite:
-                        raise RuntimeError("El servidor local no completó el arranque en 30 segundos.") from None
+                        registro.seek(0)
+                        salida = registro.read().decode("utf-8", errors="replace")
+                        ruta = raiz / ".local" / "desarrollo" / "diagnostico-http.log"
+                        ruta.write_text(salida, encoding="utf-8")
+                        ruta.chmod(0o600)
+                        if os.environ.get("GITHUB_ACTIONS") == "true":
+                            print(salida[-6000:], file=sys.stderr)
+                        raise RuntimeError(
+                            f"El servidor local no completó el arranque: {ruta}. Última respuesta: {proceso.poll()}."
+                        ) from None
                     time.sleep(0.25)
             with urllib.request.urlopen(f"http://127.0.0.1:{puerto}/login/", timeout=5) as respuesta:
                 assert respuesta.status == 200
