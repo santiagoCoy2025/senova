@@ -142,7 +142,14 @@ class EntornoDesarrolloTests(SimpleTestCase):
         for version in [(3, 12, 0), (3, 13, 0), (3, 14, 0), (3, 15, 1)]:
             with self.subTest(version=version), patch("scripts.configurar_entorno.sys.version_info", version):
                 self.assertEqual(configurar_entorno.main(["--inicio-rapido"]), 0)
-                preparar.assert_called_with(configurar_entorno.ROOT, inicio_rapido=True, mysql=False, extensiones=False)
+                preparar.assert_called_with(
+                    configurar_entorno.ROOT,
+                    inicio_rapido=True,
+                    mysql=False,
+                    extensiones=False,
+                    solo_ejecucion=False,
+                    reparar_entorno=False,
+                )
 
     @patch("scripts.configurar_entorno.subprocess.check_output")
     def test_un_entorno_de_otro_python_no_se_usa_silenciosamente(self, salida):

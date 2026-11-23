@@ -8,17 +8,19 @@ Abre la carpeta que contiene `manage.py`. El inicio local funciona con Python 3.
 
 ```powershell
 # Windows, desde PowerShell
-python scripts/configurar_entorno.py --inicio-rapido --extensiones --ejecutar
+python iniciar.py
 ```
 
 ```bash
 # Linux/macOS
-python3.15 scripts/configurar_entorno.py --inicio-rapido --extensiones --ejecutar
+python3.15 iniciar.py
 ```
+
+En Windows también puedes hacer doble clic en **`INICIAR_WINDOWS.cmd`**. El inicio instala únicamente las bibliotecas de la aplicación desde paquetes precompilados; las herramientas de desarrollo se preparan por separado. Si `.venv` está incompleto o corresponde a otro Python/sistema, conserva la copia anterior en `.local/entornos/` y crea uno compatible. Si falla el inicio, la ventana de Windows conserva el mensaje del error.
 
 Abre http://127.0.0.1:8000/. Las seis cuentas se guardan en `.local/desarrollo/credenciales_revision.json`. La preparación crea `.venv` y un perfil SQLite independiente; conserva tu `.env` de MySQL y sus datos. Los PIN de prueba aparecen en la consola del trabajador. **Ctrl+C** detiene ambos procesos.
 
-Para iniciar con **F5**, selecciona `.venv` en **Python: Select Interpreter** y elige **GESICOM: aplicación y correos locales**. Para volver a ejecutar desde PowerShell usa `.\.venv\Scripts\python.exe scripts/ejecutar_local.py`; en Linux/macOS, `.venv/bin/python scripts/ejecutar_local.py`. La [guía de VS Code](docs/VSCODE.md) explica extensiones, tareas y solución de errores.
+Para instalar las herramientas y extensiones de desarrollo ejecuta `python scripts/configurar_entorno.py --inicio-rapido --extensiones`. Para iniciar con **F5**, selecciona `.venv` en **Python: Select Interpreter** y elige **GESICOM: aplicación y correos locales**. Para volver a ejecutar desde PowerShell usa `.\.venv\Scripts\python.exe scripts/ejecutar_local.py`; en Linux/macOS, `.venv/bin/python scripts/ejecutar_local.py`. La [guía de VS Code](docs/VSCODE.md) explica extensiones, tareas y solución de errores.
 
 ## Inicio local con Docker
 
@@ -153,7 +155,7 @@ python -m pip install -r requirements-production.txt -r requirements-dev.txt
 python scripts/configurar_local.py
 python manage.py migrate --settings=SENNOVA.migration_settings
 python manage.py collectstatic --noinput
-python manage.py runserver
+python manage.py runserver --settings=SENNOVA.settings
 ```
 
 Configura `DB_*` y `REDIS_URL` para los servicios existentes. Prepara primero las cuentas dedicadas con `scripts/preparar_mysql.py --aplicar --con-pruebas` si MySQL está en el servicio Docker del proyecto; para otro servidor utiliza el procedimiento de [perfiles de MySQL](database/seguridad/README.md). `.env` se carga automáticamente; las variables del proceso tienen prioridad. SQLite queda disponible con `DB_ENGINE=sqlite` para desarrollo puntual. MySQL es el destino principal y la base utilizada en las verificaciones de capacidad y concurrencia.
